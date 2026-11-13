@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LedgerFlow — Expense Tracker</title>
+    <meta
+      name="description"
+      content="A clean, minimalist personal finance and expense tracking dashboard built with HTML5, CSS3, and Vanilla JavaScript."
+    />
+    <meta property="og:title" content="LedgerFlow — Expense Tracker" />
+    <meta
+      property="og:description"
+      content="A clean, minimalist personal finance and expense tracking dashboard built with HTML5, CSS3, and Vanilla JavaScript."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&family=Public+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js" defer></script>
+    <script src="https://unpkg.com/lucide@0.454.0/dist/umd/lucide.min.js" defer></script>
+    <script type="module" src="./js/app.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <!-- Mobile Sidebar Backdrop -->
+      <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
+
+      <!-- Sidebar Navigation -->
+      <aside id="app-sidebar" class="sidebar" aria-label="Primary Navigation">
+        <div class="sidebar-brand">
+          <img src="./assets/logo.svg" alt="LedgerFlow logo" class="brand-logo" width="32" height="32" />
+          <span class="brand-name">LedgerFlow</span>
+        </div>
+
+        <nav class="sidebar-nav" id="sidebar-nav">
+          <button type="button" class="nav-item active" data-view="dashboard">
+            <i data-lucide="layout-dashboard" class="nav-icon"></i>
+            <span>Dashboard</span>
+          </button>
+          <button type="button" class="nav-item" data-view="add">
+            <i data-lucide="plus-circle" class="nav-icon"></i>
+            <span>Add Entry</span>
+          </button>
+          <button type="button" class="nav-item" data-view="transactions">
+            <i data-lucide="list-ordered" class="nav-icon"></i>
+            <span>Transactions</span>
+          </button>
+          <button type="button" class="nav-item" data-view="analytics">
+            <i data-lucide="bar-chart-3" class="nav-icon"></i>
+            <span>Analytics</span>
+          </button>
+          <button type="button" class="nav-item" data-view="budget">
+            <i data-lucide="wallet" class="nav-icon"></i>
+            <span>Budget</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div id="sidebar-budget-mini" class="sidebar-budget-summary"></div>
+          <div class="sidebar-actions">
+            <button type="button" id="export-csv-btn" class="btn-ghost-sm" title="Export transactions as CSV">
+              <i data-lucide="download" class="icon-xs"></i>
+              <span>Export CSV</span>
+            </button>
+            <button type="button" id="reset-demo-btn" class="btn-ghost-sm" title="Restore sample transactions">
+              <i data-lucide="rotate-ccw" class="icon-xs"></i>
+              <span>Sample Data</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Workspace -->
+      <div class="workspace">
+        <!-- Top Navigation Bar -->
+        <header class="topbar">
+          <div class="topbar-left">
+            <button
+              type="button"
+              id="mobile-menu-btn"
+              class="icon-btn mobile-only"
+              aria-label="Open navigation menu"
+              aria-expanded="false"
+            >
+              <i data-lucide="menu" class="icon-sm"></i>
+            </button>
+            <div class="breadcrumb" aria-label="Breadcrumb">
+              <span class="breadcrumb-root">LedgerFlow</span>
+              <span class="breadcrumb-sep" aria-hidden="true">/</span>
+              <h1 id="topbar-view-title" class="breadcrumb-current">Dashboard</h1>
+            </div>
+          </div>
+
+          <div class="topbar-right">
+            <div class="month-switcher" aria-label="Active Month">
+              <button type="button" id="prev-month-btn" class="month-nav-btn" aria-label="Previous month">
+                <i data-lucide="chevron-left" class="icon-xs"></i>
+              </button>
+              <input
+                type="month"
+                id="active-month-input"
+                class="month-input"
+                aria-label="Select active month"
+              />
+              <button type="button" id="next-month-btn" class="month-nav-btn" aria-label="Next month">
+                <i data-lucide="chevron-right" class="icon-xs"></i>
+              </button>
+            </div>
+
+            <button type="button" id="topbar-add-btn" class="btn-primary">
+              <i data-lucide="plus" class="icon-xs"></i>
+              <span>New Transaction</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Dynamic View Container -->
+        <main id="main-content" class="main-content" tabindex="-1">
+          <!-- Dashboard View -->
+          <section id="view-dashboard" class="view-section active" aria-labelledby="topbar-view-title"></section>
+
+          <!-- Add / Edit Income & Expense View -->
+          <section id="view-add" class="view-section" hidden></section>
+
+          <!-- Transaction History View -->
+          <section id="view-transactions" class="view-section" hidden></section>
+
+          <!-- Expense Analytics View -->
+          <section id="view-analytics" class="view-section" hidden></section>
+
+          <!-- Budget Management View -->
+          <section id="view-budget" class="view-section" hidden></section>
+        </main>
+      </div>
+    </div>
+
+    <!-- Transaction Edit / Quick-Add Modal -->
+    <div id="transaction-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <div class="modal-panel">
+        <div class="modal-header">
+          <h2 id="modal-title" class="modal-title">New Transaction</h2>
+          <button type="button" id="close-modal-btn" class="icon-btn" aria-label="Close modal">
+            <i data-lucide="x" class="icon-sm"></i>
+          </button>
+        </div>
+        <div id="modal-form-container" class="modal-body"></div>
+      </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="confirm-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="confirm-title" hidden>
+      <div class="modal-panel modal-panel-sm">
+        <div class="modal-header">
+          <h2 id="confirm-title" class="modal-title">Confirm Action</h2>
+          <button type="button" id="close-confirm-btn" class="icon-btn" aria-label="Close confirmation">
+            <i data-lucide="x" class="icon-sm"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="confirm-message" class="confirm-text"></p>
+          <div class="modal-actions">
+            <button type="button" id="confirm-cancel-btn" class="btn-secondary">Cancel</button>
+            <button type="button" id="confirm-accept-btn" class="btn-danger">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification Region -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>
